@@ -102,6 +102,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.dhf</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1.2-RELEASE</version>
+        </dependency>
     </dependencies>
 
 </project>
