@@ -9,5 +9,8 @@
         <module name="hush-universal-util" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="hush-universal-util" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
