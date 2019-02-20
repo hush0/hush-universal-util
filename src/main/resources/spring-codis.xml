@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxActive}"/>
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="maxWaitMillis" value="${redis.maxWait}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+    </bean>
+
+
+    <bean id="recommendRoundRobinJedisPool" class="com.didi.growth.common.redis.cache.RecommendRoundRobinJedisPool">
+        <property name="zkServer" value="${codis.zk.server}"/>
+        <property name="zkPath" value="${codis.zk.path}"/>
+        <property name="zkTimeout" value="${codis.zk.timeout}"/>
+        <property name="zkRetryTime" value="${codis.zk.retrytime}"/>
+        <property name="jedisPoolConfig" ref="jedisPoolConfig"/>
+    </bean>
+
+
+
+    <bean id="kedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${kedis.maxActive}"/>
+        <property name="maxIdle" value="${kedis.maxIdle}"/>
+        <property name="maxWaitMillis" value="${kedis.maxWait}"/>
+        <property name="testOnBorrow" value="${kedis.testOnBorrow}"/>
+    </bean>
+
+    <bean id="kedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="poolConfig" ref="kedisPoolConfig" />
+        <constructor-arg name="host" value="${kedis.host}" />
+        <constructor-arg name="port" value="${kedis.port}" type="int" />
+    </bean>
+
+    <bean id="redisCacheService" class="hush.common.service.RedisCacheServiceImpl">
+        <constructor-arg name="pool" ref="kedisPool"/>
+    </bean>
+
+
+
+
+    <bean id="codisConnectionFactory" class="com.didi.growth.common.redis.lock.CodisConnectionFactory">
+        <constructor-arg name="pool" ref="kedisPool"/>
+    </bean>
+
+    <bean id="redisGlobalLockTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory" ref="codisConnectionFactory"/>
+    </bean>
+
+    <bean id="globalLockRedisFactory" class="com.didi.growth.common.redis.lock.GlobalLockRedisFactory">
+        <property name="globalLockRedisTemplate" ref="redisGlobalLockTemplate"/>
+    </bean>
+</beans>
